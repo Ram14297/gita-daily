@@ -1,0 +1,37 @@
+name: Daily Gita Message
+
+on:
+  schedule:
+    - cron: '30 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-gita:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Gita script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          CLAUDE_KEY: ${{ secrets.CLAUDE_KEY }}
+        run: python send_gita.py
+
+      - name: Save verse progress to repo
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add verse_tracker.txt
+          git diff-index --quiet HEAD || git commit -m "Update verse tracker"
+          git push
