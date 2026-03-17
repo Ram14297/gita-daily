@@ -77,10 +77,10 @@ _Jai Shri Krishna_ 🙏"""
         }
     )
     resp_json = response.json()
-print("Claude API full response:", resp_json)
-if "content" not in resp_json:
-    raise Exception(f"Claude API Error: {resp_json}")
-return resp_json["content"][0]["text"]
+    print("Claude API full response:", resp_json)
+    if "content" not in resp_json:
+        raise Exception(f"Claude API Error: {resp_json}")
+    return resp_json["content"][0]["text"]
 
 # =====================
 # GENERATE AUDIO
