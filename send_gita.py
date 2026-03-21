@@ -29,9 +29,20 @@ def save_next_verse(ch, vs):
 
 def generate_message(chapter, verse):
     prompt = (
-        f"Generate a Telegram message for Bhagavad Gita Chapter {chapter}, Verse {verse}. "
-        f"Include: Sanskrit Shloka, Pronunciation, Translation, simple Explanation like for a child, "
-        f"and 3 Daily Life lessons. End with Jai Shri Krishna."
+        f"Generate a Telegram message for Bhagavad Gita Chapter {chapter}, Verse {verse}.\n"
+        f"Use this exact format with a blank line between every section:\n\n"
+        f"Namaste friends,\n\n"
+        f"Today's verse: Bhagavad Gita Chapter {chapter}, Verse {verse}\n\n"
+        f"Sanskrit Shloka: [actual shloka]\n\n"
+        f"Pronunciation: [pronunciation]\n\n"
+        f"Translation: [translation]\n\n"
+        f"Explanation for kids: [simple explanation]\n\n"
+        f"Daily Life Lessons:\n"
+        f"1. [lesson 1]\n"
+        f"2. [lesson 2]\n"
+        f"3. [lesson 3]\n\n"
+        f"Jai Shri Krishna\n\n"
+        f"IMPORTANT: Keep a blank line between every section. Do not merge any sections together."
     )
     for attempt in range(1, 4):
         print(f"Calling Groq API (attempt {attempt}/3)...")
