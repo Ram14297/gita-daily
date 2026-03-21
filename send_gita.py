@@ -5,7 +5,7 @@ from gtts import gTTS
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
-CLAUDE_KEY = os.environ["CLAUDE_KEY"]
+GROQ_API_KEY = os.environ["CLAUDE_KEY"]
 
 VERSES = {1:47, 2:72, 3:43, 4:42, 5:29, 6:47, 7:30, 8:28,
           9:34, 10:42, 11:55, 12:20, 13:35, 14:27, 15:20,
@@ -33,30 +33,32 @@ def generate_message(chapter, verse):
         f"Include: Sanskrit Shloka, Pronunciation, Translation, simple Explanation like for a child, "
         f"and 3 Daily Life lessons. End with Jai Shri Krishna."
     )
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.0-flash:generateContent?key={CLAUDE_KEY}"
-    )
     for attempt in range(1, 4):
-        print(f"Calling Gemini API (attempt {attempt}/3)...")
+        print(f"Calling Groq API (attempt {attempt}/3)...")
         response = requests.post(
-            url,
-            headers={"content-type": "application/json"},
-            json={"contents": [{"parts": [{"text": prompt}]}]},
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "llama-3.3-70b-versatile",
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 1024
+            },
             timeout=60
         )
         resp_json = response.json()
-        if "candidates" in resp_json:
-            return resp_json["candidates"][0]["content"]["parts"][0]["text"]
-        error = resp_json.get("error", {})
-        code = error.get("code")
-        print(f"API error (code {code}): {error.get('message', resp_json)}")
+        if response.status_code == 200 and "choices" in resp_json:
+            return resp_json["choices"][0]["message"]["content"]
+        code = response.status_code
+        print(f"API error (code {code}): {resp_json}")
         if code == 429 and attempt < 3:
             wait = 30 * attempt
             print(f"Rate limited. Waiting {wait}s before retry...")
             time.sleep(wait)
         else:
-            raise Exception(f"Gemini API failed after {attempt} attempt(s): {resp_json}")
+            raise Exception(f"Groq API failed after {attempt} attempt(s): {resp_json}")
     raise Exception("Max retries exceeded")
 
 def generate_audio(message):
